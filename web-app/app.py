@@ -15,12 +15,12 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     ''' register form ''' 
-    if request.method == 'GET':
-        return render_template('register.html')
-    return render_template('home.html',
-        given_name = request.form.get("given-name"),
-        surname = request.form.get("surname"),
-        email = request.form.get("email"))
+    if request.method == 'POST':
+        return render_template('register.html',
+            given_name = request.form.get("given-name"),
+            surname = request.form.get("surname"),
+            email = request.form.get("email"))
+    return render_template('register.html')
 
 if __name__ == "__main__":
     ''' do soomething here '''
