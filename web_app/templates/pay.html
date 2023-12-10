@@ -1,0 +1,15 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    Add Expense | Financify
+{% endblock %}
+
+{% block content %}
+
+{% for user in users_owed %}
+    <div class="owe" onclick="location.href='{{ url_for('record_payment', user_id=user._id) }}'">
+        <h1>You owe {{user.first_name}}({{user.email}}) ${{user.amount}}</h1>
+    </div>
+{% endfor %}
+
+{% endblock %}
