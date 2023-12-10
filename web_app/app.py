@@ -1,6 +1,7 @@
 import datetime
 
 from bson.objectid import ObjectId
+
 from flask import (
     Flask,
     render_template,
@@ -48,6 +49,7 @@ def load_user(user_id):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+
     if request.method == 'POST':
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
@@ -78,6 +80,7 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -94,11 +97,35 @@ def login():
 
 @app.route('/')
 def index():
+
     if current_user.is_authenticated:
 
-        owed_expenses = db.expenses.find({'paid_by': ObjectId(current_user.get_id())})
-        owe_expenses = db.expenses.find({f'paid.{current_user.email}' : {'$exists': True}})
-        return render_template('index.html', owed_expenses=list(owed_expenses), owe_expenses=list(owe_expenses))
+        owed_expenses = list(db.expenses.find({'paid_by': ObjectId(current_user.get_id())}))
+
+        owe_expenses = list(db.expenses.find({"$and":[
+                {'paid_by' : {'$ne': ObjectId(current_user.get_id())}}, 
+                {f'splits.{current_user.email}' : {'$exists': True}}
+            ]}))
+        
+        owed_amount = 0
+        owe_amount = 0
+
+        for expense in owed_expenses:
+            for user in expense.get('splits').keys():
+                # change to use keys
+                if user !=  current_user.email:
+                    owed_amount += expense.get('splits')[user]
+        
+        for expense in owe_expenses:
+            for user in expense.get('splits').keys():
+                owe_amount += expense.get('splits')[user]
+
+        return render_template('index.html', 
+                               owed_expenses=owed_expenses,
+                               owe_expenses=owe_expenses,
+                               owed_amount=owed_amount,
+                               owe_amount=owe_amount
+                               )
     
     return render_template('register.html')
 
@@ -143,8 +170,6 @@ def add():
 def edit(expense_id):
 
     expense = db.expenses.find_one({'_id': ObjectId(expense_id)})
-    print(expense)
-
 
     if not expense or expense.get('paid_by') != ObjectId(current_user.get_id()):
         return redirect(url_for('index'))
