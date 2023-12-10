@@ -95,8 +95,11 @@ def login():
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        expenses = db.expenses.find({'paid_by': ObjectId(current_user.get_id())})
-        return render_template('index.html', expenses=expenses)
+
+        owed_expenses = db.expenses.find({'paid_by': ObjectId(current_user.get_id())})
+        owe_expenses = db.expenses.find({f'paid.{current_user.email}' : {'$exists': True}})
+        return render_template('index.html', owed_expenses=list(owed_expenses), owe_expenses=list(owe_expenses))
+    
     return render_template('register.html')
 
 
@@ -138,9 +141,12 @@ def add():
 @app.route('/edit/<expense_id>', methods=['GET', 'POST'])
 @login_required
 def edit(expense_id):
-    expense = db.expenses.find_one({'_id': ObjectId(expense_id)})
 
-    if not expense or expense.get('added_by') != ObjectId(current_user.get_id()):
+    expense = db.expenses.find_one({'_id': ObjectId(expense_id)})
+    print(expense)
+
+
+    if not expense or expense.get('paid_by') != ObjectId(current_user.get_id()):
         return redirect(url_for('index'))
 
     if (request.method == 'GET'):
@@ -156,6 +162,26 @@ def edit(expense_id):
 
         splits = {friend: per_head_cost for friend in splits}
 
+        edited_expense = db.expenses.find_one_and_replace({'_id': ObjectId(expense_id)}, {
+            'name': name,
+            'amount': amount,
+            'paid_by': ObjectId(current_user.get_id()),
+            'splits': splits,
+        })
+
+        return redirect(url_for('edit'))
+    
+@app.route('/delete/<expense_id>', methods = ['GET'])
+@login_required
+def delete(expense_id):
+
+    expense = db.expenses.find_one({'_id': ObjectId(expense_id)})
+    
+    if not expense or expense.get('paid_by') != ObjectId(current_user.get_id()):
+        return redirect(url_for('index'))
+    
+    db.expenses.delete_one({'_id': ObjectId(expense_id)})
+    return redirect(url_for('index'))
 
 @app.route('/logout')
 @login_required
