@@ -113,10 +113,51 @@ def add():
     else:
         expense_name = request.form.get('expense_name')
         expense_amount = int(request.form.get('expense_amount'))
-        expense_friends = request.form.get('expense_friends').strip().split(',')
 
-        expense_friends.append(current_user.get_id())
-        per_head_cost = expense_amount/len(expense_friends)
+        friends = request.form.get('expense_friends').strip().split(',')
+
+        friends.append(current_user.get_id())
+        per_head_cost = expense_amount/len(friends)
+
+        expense_friends = {}
+
+        for friend in friends:
+            expense_friends[friend] = per_head_cost
+
+        db.expenses.insert_one({
+            'added_by': ObjectId(current_user.get_id()),
+            'expense_name': expense_name,
+            'expense_amount': expense_amount,
+            'expense_friends': expense_friends,
+            'per_head_cost': per_head_cost
+        })
+
+        return redirect(url_for('index'))
+    
+@app.route('/edit/<expense_id>', methods = ['GET', 'POST'])
+@login_required
+def edit(expense_id):
+
+    expense = db.expenses.find_one({'_id': ObjectId(expense_id)})
+
+    if not expense or expense.get('added_by') != ObjectId(current_user.get_id()):
+        return redirect(url_for('index'))
+    
+    if (request.method == 'GET'):
+        return render_template('edit.html', expense=expense)
+    
+    else:
+        expense_name = request.form.get('expense_name')
+        expense_amount = int(request.form.get('expense_amount'))
+        friends = request.form.get('expense_friends').strip().split(',')
+        
+        friends.append(current_user.get_id())
+        per_head_cost = expense_amount/len(friends)
+        
+        expense_friends = {}
+
+        for friend in friends:
+            expense_friends[friend] = per_head_cost
 
         db.expenses.insert_one({
             'expense_name': expense_name,
