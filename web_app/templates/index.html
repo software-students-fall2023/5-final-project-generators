@@ -1,0 +1,15 @@
+<h1>BINGBONG</h1>
+
+<a href="{{ url_for('add') }}">Add Expense </a>
+
+{% if expenses %}
+    {% for expense in expenses %}
+        <div class="expense" onclick="location.href='{{ url_for('expense', expense_id=expense._id) }}'">
+            <p><strong>Expense Name:</strong> {{ expense.expense_name }}</p>
+            <p><strong>Expense Amount:</strong> {{ expense.expense_amount }}</p>
+            <p><strong>Expense Friends:</strong> {{ expense.expense_friends|join(', ') }}</p>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No expenses available.</p>
+{% endif %}
