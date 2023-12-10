@@ -1,30 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Expense</title>
-</head>
-<body>
+{% extends 'layouts/layout.html' %}
 
+{% block title %}
+    Add Expense | Financify
+{% endblock %}
+
+{% block content %}
 <h2>Add Expense</h2>
 
 <form action="{{ url_for('add') }}" method="POST">
     
-    <label for="expense_name">Expense Name:</label>
-    <input type="text" id="expense_name" name="expense_name" required>
+    <label for="name">Expense Name:</label>
+    <input type="text" id="name" name="name" required>
     <br>
 
-    <label for="expense_amount">Expense Amount:</label>
-    <input type="number" id="expense_amount" name="expense_amount" required>
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" name="amount" min="0" step="0.01" required>
     <br>
 
-    <label for="expense_friends">Expense Friends (comma-separated):</label>
-    <input type="text" id="expense_friends" name="expense_friends" required>
+    <label for="splits">Split:</label>
+    <select id="splits" name="splits" multiple>
+        {% for user in users %}
+            <option value="{{ user.email }}" {% if user.selected %}selected{% endif %}>{{ user.first_name + ' ' + user.last_name + ' (' + user.email + ')' }}</option>
+        {% endfor %}
+    </select>
     <br>
 
-    <button type="submit">Add Expense</button>
+    <button type="submit">Add</button>
 </form>
 
-</body>
-</html>
+<script>
+    new MultiSelectTag('splits');
+</script>
+{% endblock %}

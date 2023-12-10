@@ -1,5 +1,17 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    {{ expense.name }} | Financify
+{% endblock %}
+
+{% block content %}
 <div>
-    <p><strong>Expense Name:</strong> {{ expense.expense_name }}</p>
-    <p><strong>Expense Amount:</strong> {{ expense.expense_amount }}</p>
-    <p><strong>Expense Friends:</strong> {{ expense.expense_friends|join(', ') }}</p>
+    <h1>{{ expense.name }}</h1>
+    <p>{{ expense.amount }}</p>
+    <ul>
+        {% for email, amount in expense.splits.items() %}
+            <li>{{ email }}: {{ amount }}</li>
+        {% endfor %}
+    </ul>
 </div>
+{% endblock %}
