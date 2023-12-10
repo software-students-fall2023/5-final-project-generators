@@ -117,6 +117,7 @@ def add():
     if request.method == 'GET':
         return render_template('add.html', users=get_users())
     else:
+
         name = request.form.get('name')
         amount = float(request.form.get('amount'))
         splits = request.form.get('splits').strip().split(',')
@@ -132,6 +133,28 @@ def add():
         })
 
         return redirect(url_for('index'))
+
+
+@app.route('/edit/<expense_id>', methods=['GET', 'POST'])
+@login_required
+def edit(expense_id):
+    expense = db.expenses.find_one({'_id': ObjectId(expense_id)})
+
+    if not expense or expense.get('added_by') != ObjectId(current_user.get_id()):
+        return redirect(url_for('index'))
+
+    if (request.method == 'GET'):
+        return render_template('edit.html', expense=expense)
+
+    else:
+        name = request.form.get('name')
+        amount = int(request.form.get('amount'))
+        splits = request.form.get('splits').strip().split(',')
+
+        splits.append(current_user.email)
+        per_head_cost = amount / len(splits)
+
+        splits = {friend: per_head_cost for friend in splits}
 
 
 @app.route('/logout')
