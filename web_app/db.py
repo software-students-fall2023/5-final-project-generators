@@ -7,6 +7,8 @@ from web_app.defaults import (
     MONGO_DB_PASSWORD,
     DATABASE_NAME
 )
+from bson import ObjectId
+from flask_login import current_user
 
 USERS_COLLECTION = 'users'
 EXPENSES_COLLECTION = 'expenses'
@@ -24,5 +26,12 @@ else:
 db = connection[DATABASE_NAME]
 
 
-def get_users():
-    return db[USERS_COLLECTION].find({})
+def get_users(exclude_current_user=False):
+    q = {}
+    if exclude_current_user:
+        q['_id'] = {'$ne': ObjectId(current_user.get_id())}
+    return db[USERS_COLLECTION].find(q)
+
+
+def get_user_by_email(email):
+    return db[USERS_COLLECTION].find_one({'email': email})
