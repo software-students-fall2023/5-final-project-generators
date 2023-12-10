@@ -1,0 +1,18 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    Record Payment | Financify
+{% endblock %}
+
+{% block content %}
+<h2>Record Payment</h2>
+
+<form action="{{ url_for('record_payment', user_id=user_id)}}" method="POST">
+    
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" name="amount" min="0" max="{{amount_owed}}" required>
+
+    <button type="submit">Record Payment</button>
+</form>
+
+{% endblock %}
