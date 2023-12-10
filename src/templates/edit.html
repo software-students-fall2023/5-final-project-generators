@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<h2>Add Expense</h2>
+<h2>Edit Expense</h2>
 
 <form action="{{ url_for('edit', expense_id=expense._id) }}" method="POST">
     
@@ -25,7 +25,7 @@
     </select>
     <br>
 
-    <button type="submit">Add</button>
+    <button type="submit">Edit</button>
 </form>
 
 <script>

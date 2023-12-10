@@ -18,8 +18,8 @@ from flask_login import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from web_app.db import db, get_users, get_user_by_email
-from web_app.defaults import SECRET_KEY, STATIC_DIR, TEMPLATES_DIR
+from src.db import db, get_users, get_user_by_email
+from src.defaults import SECRET_KEY, STATIC_DIR, TEMPLATES_DIR
 
 app = Flask(
     __name__,
@@ -133,7 +133,8 @@ def expense_details(expense_id):
     if expense:
         return render_template('expense.html', expense=expense)
     else:
-        return redirect(url_for('index'))
+        # 404 page with 404 status
+        return render_template('404.html'), 404
 
 
 def get_expense_info():
@@ -160,8 +161,8 @@ def add():
         users.append(item)
         return render_template('add.html', users=users)
     elif request.method == 'POST':
-        db.expenses.insert_one({**get_expense_info(), 'created_at': datetime.datetime.utcnow()})
-        return redirect(url_for('index'))
+        result = db.expenses.insert_one({**get_expense_info(), 'created_at': datetime.datetime.utcnow()})
+        return redirect(url_for('expense_details', expense_id=result.inserted_id))
 
 
 @app.route('/edit/<expense_id>', methods=['GET', 'POST'])

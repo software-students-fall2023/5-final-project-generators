@@ -1,14 +1,14 @@
 import pymongo
+from bson import ObjectId
+from flask_login import current_user
 
-from web_app.defaults import (
+from src.defaults import (
     MONGO_DB_HOST,
     MONGO_DB_PORT,
     MONGO_DB_USERNAME,
     MONGO_DB_PASSWORD,
     DATABASE_NAME
 )
-from bson import ObjectId
-from flask_login import current_user
 
 USERS_COLLECTION = 'users'
 EXPENSES_COLLECTION = 'expenses'
@@ -35,3 +35,7 @@ def get_users(exclude_current_user=False):
 
 def get_user_by_email(email):
     return db[USERS_COLLECTION].find_one({'email': email})
+
+
+def drop_db():
+    connection.drop_database(DATABASE_NAME)
