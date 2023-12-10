@@ -1,15 +1,44 @@
-<h1>BINGBONG</h1>
+{% extends 'layouts/layout.html' %}
 
-<a href="{{ url_for('add') }}">Add Expense </a>
+{% block title %}
+    Home | Financify
+{% endblock %}
 
-{% if expenses %}
-    {% for expense in expenses %}
+{% block content %}
+<a href="{{ url_for('add') }}">Add Expense</a>
+
+{% if owed_expenses %}
+    <h1>You are Owed</h1>
+    {% for expense in owed_expenses %}
         <div class="expense" onclick="location.href='{{ url_for('expense', expense_id=expense._id) }}'">
-            <p><strong>Expense Name:</strong> {{ expense.expense_name }}</p>
-            <p><strong>Expense Amount:</strong> {{ expense.expense_amount }}</p>
-            <p><strong>Expense Friends:</strong> {{ expense.expense_friends|join(', ') }}</p>
+            <h1>{{ expense.name }}</h1>
+            <p>{{ expense.amount }}</p>
+            <ul>
+                {% for email, amount in expense.splits.items() %}
+                    <li>{{ email }}: {{ amount }}</li>
+                {% endfor %}
+            </ul>
         </div>
     {% endfor %}
-{% else %}
+{% endif %}
+
+{% if owe_expenses %}
+    <h1>You Owe</h1>
+    {% for expense in owe_expenses %}
+        <div class="expense" onclick="location.href='{{ url_for('expense', expense_id=expense._id) }}'">
+            <h1>{{ expense.name }}</h1>
+            <p>{{ expense.amount }}</p>
+            <ul>
+                {% for email, amount in expense.splits.items() %}
+                    <li>{{ email }}: {{ amount }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% if not owed_expenses and not owe_expenses%}
     <p>No expenses available.</p>
 {% endif %}
+
+{% endblock %}
