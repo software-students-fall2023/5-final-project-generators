@@ -18,9 +18,10 @@ from flask_login import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from web_app.db import db, get_users, get_user_by_email
-from web_app.defaults import SECRET_KEY, STATIC_DIR, TEMPLATES_DIR
+from src.db import db, get_users, get_user_by_email
+from src.defaults import SECRET_KEY, STATIC_DIR, TEMPLATES_DIR
 
+# initialize the flask app
 app = Flask(
     __name__,
     template_folder=TEMPLATES_DIR,
@@ -99,11 +100,13 @@ def login():
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-
-        owed_expenses = list(db.expenses.find({"$and": [
-            {'paid_by': ObjectId(current_user.get_id())},
-            {'payment': False}
-        ]}))
+        owed_expenses = list(db.expenses.find(
+            {"$and": [
+                {'paid_by': ObjectId(current_user.get_id())},
+                {'payment': False}
+            ]
+            }
+        ))
 
         owe_expenses = list(db.expenses.find({"$and": [
             {'paid_by': {'$ne': ObjectId(current_user.get_id())}},
@@ -119,7 +122,7 @@ def index():
                                owed_amount=owed_amount,
                                owe_amount=owe_amount
                                )
-    
+
     return render_template('register.html')
 
 
@@ -128,10 +131,11 @@ def index():
 def expense_details(expense_id):
     expense = db.expenses.find_one({'_id': ObjectId(expense_id)})
     if expense:
-        return render_template('expense.html', expense=expense, 
-                               own= (ObjectId(expense.get('paid_by')) == ObjectId(current_user.get_id())))
+        return render_template('expense.html', expense=expense,
+                               own=(ObjectId(expense.get('paid_by')) == ObjectId(current_user.get_id())))
     else:
-        return redirect(url_for('index'))
+        # 404 page with 404 status
+        return render_template('404.html'), 404
 
 
 def get_expense_info():
@@ -147,13 +151,10 @@ def get_expense_info():
         'splits': {str(get_user_by_email(friend)['_id']): per_head_cost for friend in splits}
     }
 
-def get_balance(user1, user2):
 
+def get_balance(user1, user2):
     user1_paid = list(db.expenses.find({'paid_by': ObjectId(user1)}))
     user2_paid = list(db.expenses.find({'paid_by': ObjectId(user2)}))
-
-    print(user1_paid)
-    print(user2_paid)
 
     user_1_owes = 0
     user_2_owes = 0
@@ -166,28 +167,24 @@ def get_balance(user1, user2):
 
     return user_1_owes - user_2_owes
 
-def get_owe_owed():
 
+def get_owe_owed():
     users = db.users.find({})
     amount_owe = 0
     amount_owed = 0
 
     for user in users:
         if ObjectId(user.get('_id')) != ObjectId(current_user.get_id()):
-
             balance = get_balance(current_user.get_id(), user.get('_id'))
             amount_owe += balance if balance > 0 else 0
             amount_owed += -balance if balance < 0 else 0
-    
+
     return amount_owe, amount_owed
 
-def get_owed(user):
-    pass
 
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add():
-
     if request.method == 'GET':
         users = list(get_users(exclude_current_user=True))
         item = get_user_by_email(current_user.email)
@@ -195,11 +192,10 @@ def add():
         users.append(item)
         return render_template('add.html', users=users)
     elif request.method == 'POST':
-        db.expenses.insert_one({**get_expense_info(), 
-                                'payment': False,
-                                'created_at': datetime.datetime.utcnow()})
-        
-        return redirect(url_for('index'))
+        result = db.expenses.insert_one({**get_expense_info(),
+                                         'payment': False,
+                                         'created_at': datetime.datetime.utcnow()})
+        return redirect(url_for('expense_details', expense_id=result.inserted_id))
 
 
 @app.route('/edit/<expense_id>', methods=['GET', 'POST'])
@@ -235,39 +231,35 @@ def delete(expense_id):
     db.expenses.delete_one({'_id': ObjectId(expense_id)})
     return redirect(url_for('index'))
 
+
 @app.route('/payments', methods=['GET'])
 @login_required
 def payments():
-    
     owe_expenses = list(db.expenses.find({"$and": [
-            {'paid_by': {'$ne': ObjectId(current_user.get_id())}},
-            {f'splits.{current_user.get_id()}': {'$exists': True}}
-        ]}))
-    
+        {'paid_by': {'$ne': ObjectId(current_user.get_id())}},
+        {f'splits.{current_user.get_id()}': {'$exists': True}}
+    ]}))
+
     user_id_owed = list(set([expense.get('paid_by') for expense in owe_expenses]))
     users_owed = list(db.users.find({'_id': {'$in': user_id_owed}}))
 
+    # find fiscal relationship with each user and put in a dict
     for user in users_owed:
-        print(current_user.get_id(), user.get('_id'))
         balance = get_balance(current_user.get_id(), user.get('_id'))
-        print(balance)
         if balance > 0:
             user['amount'] = balance
 
     return render_template('pay.html', users_owed=users_owed)
 
+
 @app.route('/pay/<user_id>', methods=['GET', 'POST'])
 @login_required
 def record_payment(user_id):
-
     if request.method == 'GET':
         amount_owed = get_balance(current_user.get_id(), user_id)
-        return render_template('record_payment.html', user_id = user_id, amount_owed = amount_owed)
-
+        return render_template('record_payment.html', user_id=user_id, amount_owed=amount_owed)
     elif request.method == 'POST':
-
         amount_paid = float(request.form.get('amount'))
-
         db.expenses.insert_one({
             'payment': True,
             'paid_by': ObjectId(current_user.get_id()),
@@ -275,7 +267,7 @@ def record_payment(user_id):
         })
 
         return redirect(url_for('index'))
-        
+
 
 @app.route('/logout')
 @login_required

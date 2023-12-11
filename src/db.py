@@ -1,14 +1,14 @@
 import pymongo
+from bson import ObjectId
+from flask_login import current_user
 
-from web_app.defaults import (
+from src.defaults import (
     MONGO_DB_HOST,
     MONGO_DB_PORT,
     MONGO_DB_USERNAME,
     MONGO_DB_PASSWORD,
     DATABASE_NAME
 )
-from bson import ObjectId
-from flask_login import current_user
 
 USERS_COLLECTION = 'users'
 EXPENSES_COLLECTION = 'expenses'
