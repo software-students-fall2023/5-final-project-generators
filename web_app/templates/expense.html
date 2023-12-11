@@ -5,15 +5,29 @@
 {% endblock %}
 
 {% block content %}
-<div>
-    <h1>{{ expense.name }}</h1>
-    <p>{{ expense.amount }}</p>
-    <ul>
-        {% for email, amount in expense.splits.items() %}
-            <li>{{ email }}: {{ amount }}</li>
-        {% endfor %}
-    </ul>
-</div>
-<a href="{{ url_for('edit', expense_id = expense._id)}}">Edit</a>
-<a href="{{ url_for('delete', expense_id = expense._id)}}">Delete</a>
+    <nav class="bg-primary-400 p-4 mb-8 flex justify-evenly">
+        <a href="{{ url_for('add') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Add Expense</a>
+        <a href="{{ url_for('payments') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Record Payment</a>
+        <a href="{{ url_for('logout') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Logout</a>
+    </nav>
+
+    <div class="container mx-auto mt-8">
+        <div class="bg-white p-8 rounded-md shadow-md">
+            <h1 class="text-3xl font-semibold text-secondary-800 mb-4">{{ expense.name }}</h1>
+            <p class="text-lg text-primary-400 font-bold mb-2">${{ expense.amount }}</p>
+            <ul class="list-disc ml-6">
+                {% for email, amount in expense.splits.items() %}
+                    <li class="text-gray-700">{{ email }}: ${{ amount }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% if own %}
+            <div class="flex mt-4">
+                <a href="{{ url_for('edit', expense_id=expense._id) }}" class="bg-primary-200 text-gray-900 hover:bg-primary-300 hover:no-underline px-4 py-2 rounded-md mr-4">Edit</a>
+                <a href="{{ url_for('delete', expense_id=expense._id) }}" class="bg-red-200 text-gray-900 hover:bg-red-300 px-4 hover:no-underline py-2 rounded-md">Delete</a>
+            </div>
+
+        {% endif %}
+    </div>
 {% endblock %}

@@ -112,7 +112,7 @@ def index():
         ]}))
 
         owe_amount, owed_amount = get_owe_owed()
-        
+
         return render_template('index.html',
                                owed_expenses=owed_expenses,
                                owe_expenses=owe_expenses,
@@ -128,7 +128,8 @@ def index():
 def expense_details(expense_id):
     expense = db.expenses.find_one({'_id': ObjectId(expense_id)})
     if expense:
-        return render_template('expense.html', expense=expense)
+        return render_template('expense.html', expense=expense, 
+                               own= (ObjectId(expense.get('paid_by')) == ObjectId(current_user.get_id())))
     else:
         return redirect(url_for('index'))
 
@@ -150,6 +151,9 @@ def get_balance(user1, user2):
 
     user1_paid = list(db.expenses.find({'paid_by': ObjectId(user1)}))
     user2_paid = list(db.expenses.find({'paid_by': ObjectId(user2)}))
+
+    print(user1_paid)
+    print(user2_paid)
 
     user_1_owes = 0
     user_2_owes = 0
@@ -243,14 +247,14 @@ def payments():
     user_id_owed = list(set([expense.get('paid_by') for expense in owe_expenses]))
     users_owed = list(db.users.find({'_id': {'$in': user_id_owed}}))
 
-    # find fiscal relationship with each user and put in a dict
-
     for user in users_owed:
+        print(current_user.get_id(), user.get('_id'))
         balance = get_balance(current_user.get_id(), user.get('_id'))
+        print(balance)
         if balance > 0:
             user['amount'] = balance
 
-    return render_template('pay.html', users_owed = users_owed)
+    return render_template('pay.html', users_owed=users_owed)
 
 @app.route('/pay/<user_id>', methods=['GET', 'POST'])
 @login_required

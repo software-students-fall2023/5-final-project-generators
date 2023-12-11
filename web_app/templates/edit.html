@@ -5,30 +5,45 @@
 {% endblock %}
 
 {% block content %}
-<h2>Add Expense</h2>
+    <nav class="bg-primary-400 p-4 mb-8 flex justify-evenly">
+        <a href="{{ url_for('add') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Add Expense</a>
+        <a href="{{ url_for('payments') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Record Payment</a>
+        <a href="{{ url_for('logout') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Logout</a>
+    </nav>
 
-<form action="{{ url_for('edit', expense_id=expense._id) }}" method="POST">
-    
-    <label for="name">Expense Name:</label>
-    <input type="text" id="name" name="name" value="{{expense.name}}" required>
-    <br>
+    <div class="container mx-auto mt-8">
+        <h1 class="text-[2rem] text-center font-body font-semibold mb-4 text-secondary-800">Edit Expense</h1>
 
-    <label for="amount">Amount:</label>
-    <input type="number" id="amount" name="amount" min="0" step="0.01" value="{{expense.amount}}" required>
-    <br>
+        <form action="{{ url_for('edit', expense_id=expense._id) }}" method="POST">
 
-    <label for="splits">Split:</label>
-    <select id="splits" name="splits" multiple required>
-        {% for user in users %}
-            <option value="{{ user.email }}" {% if user.selected %}selected{% endif %}>{{ user.first_name + ' ' + user.last_name + ' (' + user.email + ')' }}</option>
-        {% endfor %}
-    </select>
-    <br>
+            <div class="mb-4">
+                <input type="text" id="name" name="name" value="{{expense.name}}" 
+                    placeholder="Expense Name"
+                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-primary-500 placeholder:font-body" required>
+            </div>
 
-    <button type="submit">Add</button>
-</form>
+            <div class="mb-4">
+                <input type="number" id="amount" name="amount" min="0" step="0.01" value="{{expense.amount}}" 
+                    placeholder="Amount"
+                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-primary-500 placeholder:font-body" required>
+            </div>
 
-<script>
-    new MultiSelectTag('splits');
-</script>
+            <div class="mb-4">
+                <label for="splits">Split Between</label><br>
+                <select id="splits" name="splits" multiple required>
+                    {% for user in users %}
+                        <option value="{{ user.email }}" {% if user.selected %}selected{% endif %}>{{ user.first_name + ' ' + user.last_name + ' (' + user.email + ')' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <input type="submit" value="Update Expense" class="mt-[0.5rem] px-4 py-2 text-white bg-primary-400 cursor-pointer rounded-md font-body">
+            </div>
+        </form>
+    </div>
+
+    <script>
+        new MultiSelectTag('splits');
+    </script>
 {% endblock %}
