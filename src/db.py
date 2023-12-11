@@ -33,5 +33,9 @@ def get_users(exclude_current_user=False):
     return db[USERS_COLLECTION].find(q)
 
 
+def get_users_from_ids(user_ids):
+    return db[USERS_COLLECTION].find({'_id': {'$in': user_ids}})
+
+
 def get_user_by_email(email):
     return db[USERS_COLLECTION].find_one({'email': email})

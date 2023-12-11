@@ -120,3 +120,20 @@ def test_payments_page(client):
     response = client.get('/payments')
     assert response.status_code == 200
     assert '$100' in response.text
+
+
+@pytest.mark.order(6)
+def test_home_page(client):
+    """
+    Test home page
+    """
+    # not logged in
+    response = client.get('/', follow_redirects=True)
+    assert response.status_code == 200
+    assert 'Register' in response.text
+
+    # logged in
+    client.post("/login", data={"email": "foo@bar.com", "password": "foobar"})
+    response = client.get('/')
+    assert response.status_code == 200
+    assert "No expenses available." not in response.text

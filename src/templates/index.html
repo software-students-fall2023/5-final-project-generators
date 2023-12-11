@@ -13,41 +13,40 @@
     </nav>
 
     <div class="mx-[5rem] my-[3rem]">
-        {% if owed_amount %}
-            {% if owed_expenses %}
-                <h1 class="text-[2rem] font-semibold text-secondary-800">You are owed <span class="text-primary-400">${{ owed_amount }}</span></h1>
-                {% for expense in owed_expenses %}
-                    <div class="expense cursor-pointer border border-gray-300 rounded-md p-4 mb-4" onclick="location.href='{{ url_for('expense_details', expense_id=expense._id) }}'">
-                        <h1 class="text-lg font-semibold mb-2">{{ expense.name }}</h1>
-                        <p class="text-gray-600 mb-2">${{ expense.amount }}</p>
-                        <ul>
-                            {% for email, amount in expense.splits.items() %}
-                                <li class="text-gray-600">{{ email }}: ${{ amount }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endif %}
-        
-        {% if owe_amount %}
-            {% if owe_expenses %}
-                <h1 class="text-[2rem] font-semibold text-secondary-800 mb-2">You owe <span class="text-red-400">${{ owe_amount }}</span></h1>
-                {% for expense in owe_expenses %}
-                    <div class="expense cursor-pointer border border-gray-300 rounded-md p-4 mb-4" onclick="location.href='{{ url_for('expense_details', expense_id=expense._id) }}'">
-                        <h1 class="text-lg font-semibold mb-2">{{ expense.name }}</h1>
-                        <p class="text-gray-600 mb-2">${{ expense.amount }}</p>
-                        <ul>
-                            {% for email, amount in expense.splits.items() %}
-                                <li class="text-gray-600">{{ email }}: ${{ amount }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endif %}
+        {% if amounts %}
+            <h2 class="text-[2rem] font-semibold text-secondary-800">
+                Overall, you
+                {% if total < 0 %}
+                    <span class="text-red-400">owe ${{ -total }}</span>
+                {% else %}
+                    <span class="text-primary-400">are owed ${{ total }}</span>
+                {% endif %}
+            </h2>
+            {% for expense in expenses %}
+                <div class="expense cursor-pointer border border-gray-300 rounded-md p-4 mb-4" onclick="location.href='{{ url_for('expense_details', expense_id=expense._id) }}'">
+                    <h1 class="text-lg font-semibold mb-2">{{ expense.name }}</h1>
 
-        {% if not owed_amount and not owe_amount %}
+                    {% if expense.payment %}
+                        {% if expense.paid_by|string == current_user.get_id() %}
+                            {% set current = expense.splits.popitem() %}
+                            <p class="text-gray-600 mb-2">You paid {{ people[current[0]].first_name }} ${{ current[1] }}.</p>
+                        {% else %}
+                            {% set current = expense.splits.popitem() %}
+                            <p class="text-gray-600 mb-2">{{ people[current[0]].first_name }} paid you ${{ current[1] }}.</p>
+                        {% endif %}
+                    {% else %}
+                        {% if expense.paid_by|string == current_user.get_id() %}
+                            <p class="text-gray-600 mb-2">You paid ${{ expense.amount }} for
+                                {% for user_id in expense.splits %}{% if (not loop.first) and (not loop.last) %}, {% endif %}{% if loop.last and not (loop.first and loop.last) %} and{% endif %} {% if user_id == current_user.get_id() %}yourself{% else %}{{ people[user_id].first_name }}{% endif %}{% endfor %}.
+                                You lent ${{ expense.amount - expense.splits.get(current_user.get_id(), 0) }} in total.
+                            </p>
+                        {% else %}
+                            <p class="text-gray-600 mb-2">{{ people[expense.paid_by|string].first_name }} paid ${{ expense.amount }} in total. You borrowed ${{ expense.splits[current_user.get_id()] }}</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
         <div class="flex justify-center">
             <h1 class="text-[2rem] font-semibold text-secondary-800 mb-2">No expenses available.</h1>
         </div>

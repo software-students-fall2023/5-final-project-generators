@@ -18,7 +18,7 @@ from flask_login import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from src.db import db, get_users, get_user_by_email
+from src.db import db, get_users, get_user_by_email, get_users_from_ids
 from src.defaults import SECRET_KEY, STATIC_DIR, TEMPLATES_DIR
 
 # initialize the flask app
@@ -100,28 +100,17 @@ def login():
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        owed_expenses = list(db.expenses.find(
-            {"$and": [
-                {'paid_by': ObjectId(current_user.get_id())},
-                {'payment': False}
-            ]
-            }
-        ))
-
-        owe_expenses = list(db.expenses.find({"$and": [
-            {'paid_by': {'$ne': ObjectId(current_user.get_id())}},
-            {f'splits.{current_user.get_id()}': {'$exists': True}},
-            {'payment': False}
-        ]}))
-
-        owe_amount, owed_amount = get_owe_owed()
-
-        return render_template('index.html',
-                               owed_expenses=owed_expenses,
-                               owe_expenses=owe_expenses,
-                               owed_amount=owed_amount,
-                               owe_amount=owe_amount
-                               )
+        expenses, amounts = get_expenses_and_amount()
+        people = get_people([user_id for user_id, _ in amounts] + [current_user.get_id()])
+        total = sum([v for k, v in amounts])
+        return render_template(
+            'index.html',
+            expenses=expenses,
+            amounts=amounts,
+            total=total,
+            people=people,
+            current_user=current_user
+        )
 
     return render_template('register.html')
 
@@ -153,8 +142,8 @@ def get_expense_info():
 
 
 def get_balance(user1, user2):
-    user1_paid = list(db.expenses.find({'paid_by': ObjectId(user1)}))
-    user2_paid = list(db.expenses.find({'paid_by': ObjectId(user2)}))
+    user1_paid = list(db.expenses.find({'paid_by': ObjectId(user1), f'splits.{user2}': {'$exists': True}}))
+    user2_paid = list(db.expenses.find({'paid_by': ObjectId(user2), f'splits.{user1}': {'$exists': True}}))
 
     user_1_owes = 0
     user_2_owes = 0
@@ -168,18 +157,39 @@ def get_balance(user1, user2):
     return user_1_owes - user_2_owes
 
 
-def get_owe_owed():
-    users = db.users.find({})
-    amount_owe = 0
-    amount_owed = 0
+def get_people(ids):
+    users = get_users_from_ids([ObjectId(id) for id in ids])
+    return {str(user.get('_id')): user for user in users}
 
-    for user in users:
-        if ObjectId(user.get('_id')) != ObjectId(current_user.get_id()):
-            balance = get_balance(current_user.get_id(), user.get('_id'))
-            amount_owe += balance if balance > 0 else 0
-            amount_owed += -balance if balance < 0 else 0
 
-    return amount_owe, amount_owed
+def get_expenses_and_amount():
+    expenses = db.expenses.find({
+        "$or": [
+            {'paid_by': ObjectId(current_user.get_id())},
+            {f'splits.{current_user.get_id()}': {'$exists': True}}
+        ]
+    }).sort('created_at', -1)
+    expenses = list(expenses)
+
+    current_user_id = current_user.get_id()
+    people = {}
+    for expense in expenses:
+        if expense.get('paid_by') == ObjectId(current_user_id):
+            for user_id, amount in expense.get('splits').items():
+                if user_id not in people:
+                    people[user_id] = 0
+                people[user_id] += amount
+        else:
+            user = str(expense.get('paid_by'))
+            if user not in people:
+                people[user] = 0
+            people[user] -= expense.get('splits').get(current_user_id, 0)
+
+    if current_user_id in people:
+        people.pop(current_user_id)
+    amounts = list(people.items())
+    amounts.sort(key=lambda x: abs(x[1]), reverse=True)
+    return expenses, amounts
 
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -263,7 +273,8 @@ def record_payment(user_id):
         db.expenses.insert_one({
             'payment': True,
             'paid_by': ObjectId(current_user.get_id()),
-            'splits': {user_id: amount_paid}
+            'splits': {user_id: amount_paid},
+            'created_at': datetime.datetime.utcnow()
         })
 
         return redirect(url_for('index'))
