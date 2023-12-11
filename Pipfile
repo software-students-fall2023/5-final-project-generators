@@ -13,6 +13,7 @@ colorama = "*"
 [dev-packages]
 pytest = "*"
 coverage = "*"
+pytest-order = "*"
 
 [requires]
 python_version = "3.11"

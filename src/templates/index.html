@@ -6,6 +6,7 @@
 
 {% block content %}
 <a href="{{ url_for('add') }}">Add Expense</a>
+<a href="{{ url_for('payments') }}">Record Payment</a>
 
 {% if owed_expenses %}
     <h1>You are Owed ${{owed_amount}}</h1>
