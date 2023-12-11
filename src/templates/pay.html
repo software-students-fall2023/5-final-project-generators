@@ -1,15 +1,26 @@
 {% extends 'layouts/layout.html' %}
 
 {% block title %}
-    Add Expense | Financify
+    Payments | Financify
 {% endblock %}
 
 {% block content %}
 
-{% for user in users_owed %}
-    <div class="owe" onclick="location.href='{{ url_for('record_payment', user_id=user._id) }}'">
-        <h1>You owe {{user.first_name}}({{user.email}}) ${{user.amount}}</h1>
-    </div>
-{% endfor %}
+    <nav class="bg-primary-400 p-4 mb-8 flex justify-evenly">
+        <a href="{{ url_for('add') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Add Expense</a>
+        <a href="{{ url_for('payments') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Record Payment</a>
+        <a href="{{ url_for('logout') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Logout</a>
+    </nav>
 
+    <div class="container mx-auto mt-8">
+        <h1 class="text-[2rem] text-center font-body font-semibold mb-4 text-secondary-800">Pending Payments</h1>
+
+        {% for user in users_owed %}
+            {% if user.amount %}
+                <div class="owe cursor-pointer border border-gray-300 rounded-md p-4 mb-4" onclick="location.href='{{ url_for('record_payment', user_id=user._id) }}'">
+                    <h1 class="text-lg font-semibold mb-2">You owe {{ user.first_name }} ({{ user.email }}) ${{ user.amount }}</h1>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
 {% endblock %}

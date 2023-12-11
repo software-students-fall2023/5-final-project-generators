@@ -131,7 +131,8 @@ def index():
 def expense_details(expense_id):
     expense = db.expenses.find_one({'_id': ObjectId(expense_id)})
     if expense:
-        return render_template('expense.html', expense=expense)
+        return render_template('expense.html', expense=expense,
+                               own=(ObjectId(expense.get('paid_by')) == ObjectId(current_user.get_id())))
     else:
         # 404 page with 404 status
         return render_template('404.html'), 404

@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-python-dotenv = "*"
 pymongo = "*"
+python-dotenv = "*"
 flask = "*"
 flask-login = "*"
 colorama = "*"

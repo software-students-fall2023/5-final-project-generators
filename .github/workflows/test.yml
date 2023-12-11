@@ -6,14 +6,6 @@ on:
     branches:
       - main
 
-env:
-  MONGO_DB_HOST: ${{ secrets.MONGO_DB_HOST }}
-  MONGO_DB_PORT: ${{ secrets.MONGO_DB_PORT }}
-  MONGO_DB_USER: ${{ secrets.MONGO_DB_USER }}
-  MONGO_DB_PASSWORD: ${{ secrets.MONGO_DB_PASSWORD }}
-  MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
-  SECRET_KEY: ${{ secrets.SECRET_KEY }}
-
 jobs:
   test_app:
     name: Test on Python 3.11
