@@ -5,41 +5,52 @@
 {% endblock %}
 
 {% block content %}
-<a href="{{ url_for('add') }}">Add Expense</a>
-<a href="{{ url_for('payments') }}">Record Payment</a>
 
-{% if owed_expenses %}
-    <h1>You are Owed ${{owed_amount}}</h1>
-    {% for expense in owed_expenses %}
-        <div class="expense" onclick="location.href='{{ url_for('expense_details', expense_id=expense._id) }}'">
-            <h1>{{ expense.name }}</h1>
-            <p>{{ expense.amount }}</p>
-            <ul>
-                {% for email, amount in expense.splits.items() %}
-                    <li>{{ email }}: {{ amount }}</li>
+    <nav class="bg-primary-400 p-4 mb-8 flex justify-evenly">
+        <a href="{{ url_for('add') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Add Expense</a>
+        <a href="{{ url_for('payments') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Record Payment</a>
+        <a href="{{ url_for('logout') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Logout</a>
+    </nav>
+
+    <div class="mx-[5rem] my-[3rem]">
+        {% if owed_amount %}
+            {% if owed_expenses %}
+                <h1 class="text-[2rem] font-semibold text-secondary-800">You are owed <span class="text-primary-400">${{ owed_amount }}</span></h1>
+                {% for expense in owed_expenses %}
+                    <div class="expense cursor-pointer border border-gray-300 rounded-md p-4 mb-4" onclick="location.href='{{ url_for('expense_details', expense_id=expense._id) }}'">
+                        <h1 class="text-lg font-semibold mb-2">{{ expense.name }}</h1>
+                        <p class="text-gray-600 mb-2">${{ expense.amount }}</p>
+                        <ul>
+                            {% for email, amount in expense.splits.items() %}
+                                <li class="text-gray-600">{{ email }}: ${{ amount }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 {% endfor %}
-            </ul>
-        </div>
-    {% endfor %}
-{% endif %}
-
-{% if owe_expenses %}
-    <h1>You Owe ${{owe_amount}}</h1>
-    {% for expense in owe_expenses %}
-        <div class="expense" onclick="location.href='{{ url_for('expense_details', expense_id=expense._id) }}'">
-            <h1>{{ expense.name }}</h1>
-            <p>{{ expense.amount }}</p>
-            <ul>
-                {% for email, amount in expense.splits.items() %}
-                    <li>{{ email }}: {{ amount }}</li>
+            {% endif %}
+        {% endif %}
+        
+        {% if owe_amount %}
+            {% if owe_expenses %}
+                <h1 class="text-[2rem] font-semibold text-secondary-800 mb-2">You owe <span class="text-red-400">${{ owe_amount }}</span></h1>
+                {% for expense in owe_expenses %}
+                    <div class="expense cursor-pointer border border-gray-300 rounded-md p-4 mb-4" onclick="location.href='{{ url_for('expense_details', expense_id=expense._id) }}'">
+                        <h1 class="text-lg font-semibold mb-2">{{ expense.name }}</h1>
+                        <p class="text-gray-600 mb-2">${{ expense.amount }}</p>
+                        <ul>
+                            {% for email, amount in expense.splits.items() %}
+                                <li class="text-gray-600">{{ email }}: ${{ amount }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 {% endfor %}
-            </ul>
+            {% endif %}
+        {% endif %}
+
+        {% if not owed_amount and not owe_amount %}
+        <div class="flex justify-center">
+            <h1 class="text-[2rem] font-semibold text-secondary-800 mb-2">No expenses available.</h1>
         </div>
-    {% endfor %}
-{% endif %}
-
-{% if not owed_expenses and not owe_expenses%}
-    <p>No expenses available.</p>
-{% endif %}
-
+        {% endif %}
+    </div>
 {% endblock %}
