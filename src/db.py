@@ -35,7 +35,3 @@ def get_users(exclude_current_user=False):
 
 def get_user_by_email(email):
     return db[USERS_COLLECTION].find_one({'email': email})
-
-
-def drop_db():
-    connection.drop_database(DATABASE_NAME)

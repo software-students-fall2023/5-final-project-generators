@@ -1,16 +1,6 @@
-import os
-
 import pytest
 
-os.environ["MONGO_DB_NAME"] = "test-financify"
-
 from src.app import app
-from src.db import drop_db
-
-
-@pytest.fixture(scope="session", autouse=True)
-def cleanup():
-    drop_db()
 
 
 @pytest.fixture(name="client")
