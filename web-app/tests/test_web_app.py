@@ -1,6 +1,17 @@
 import pytest
 
 from src.app import app
+from src.db import drop_db
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_and_teardown():
+    """
+    Delete the database before and after all tests have run
+    """
+    drop_db()
+    yield
+    drop_db()
 
 
 @pytest.fixture(name="client")

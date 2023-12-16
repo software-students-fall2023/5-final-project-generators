@@ -18,9 +18,8 @@ from flask_login import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from db import db, get_users, get_user_by_email, get_users_from_ids
-from defaults import SECRET_KEY, STATIC_DIR, TEMPLATES_DIR
-
+from src.db import db, get_users, get_user_by_email, get_users_from_ids
+from src.defaults import SECRET_KEY, STATIC_DIR, TEMPLATES_DIR
 
 # initialize the flask app
 app = Flask(
@@ -289,4 +288,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run( host = '0.0.0.0', port=8001, debug=True)
+    app.run(host='0.0.0.0', port=8001, debug=True)

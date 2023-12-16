@@ -8,8 +8,16 @@ flask = "*"
 pymongo = "*"
 python-dotenv = "*"
 flask-login = "*"
+colorama = "*"
 
 [dev-packages]
+pytest = "*"
+coverage = "*"
+pytest-order = "*"
 
 [requires]
 python_version = "3.11"
+
+[scripts]
+web-app = "cd web-app && python -m src.app"
+test = "cd web-app && coverage run -m pytest && coverage report --fail-under=80"

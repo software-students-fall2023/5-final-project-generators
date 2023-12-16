@@ -1,20 +1,26 @@
 version: '3.8'
 services:
-  web:
-    build:
-      context: .
-      dockerfile: src/Dockerfile
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+
+  web-app:
+    build: web-app
+    image: web-app
+    container_name: src
     ports:
       - "8001:8001"
-    depends_on:
-      - db
     environment:
       - MONGO_DB_HOST=${MONGO_DB_HOST}
       - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
       - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - ML_SERVER_URL=${ML_SERVER_URL}
       - SECRET_KEY=${SECRET_KEY}
-  db:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
+    depends_on:
+      - mongodb

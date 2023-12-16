@@ -5,7 +5,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # copy files from current directory to working directory
-COPY src/ .
+COPY . .
 
 # install dependencies
 RUN pip3 install -r requirements.txt
@@ -13,5 +13,5 @@ RUN pip3 install -r requirements.txt
 # expose port 8001
 EXPOSE 8001
 
-# run command. src.app as a module 
-CMD ["python3", "app.py"]
+# Run the src
+CMD ["python3", "-m", "src.app"]
