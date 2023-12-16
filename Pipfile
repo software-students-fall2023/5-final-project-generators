@@ -4,20 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+flask = "*"
 pymongo = "*"
 python-dotenv = "*"
-flask = "*"
 flask-login = "*"
-colorama = "*"
 
 [dev-packages]
-pytest = "*"
-coverage = "*"
-pytest-order = "*"
 
 [requires]
 python_version = "3.11"
-
-[scripts]
-web-app = "python -m src.app"
-test = "coverage run -m pytest && coverage report --fail-under=80"
