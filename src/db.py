@@ -5,16 +5,14 @@ from flask_login import current_user
 from defaults import (
     MONGO_DB_HOST,
     MONGO_DB_PORT,
-    # MONGO_DB_USERNAME,
-    # MONGO_DB_PASSWORD,
+    MONGO_DB_USERNAME,
+    MONGO_DB_PASSWORD,
     DATABASE_NAME
 )
 
 USERS_COLLECTION = 'users'
 EXPENSES_COLLECTION = 'expenses'
 
-MONGO_DB_USERNAME = None
-MONGO_DB_PASSWORD = None
 
 if MONGO_DB_USERNAME and MONGO_DB_PASSWORD:
     connection = pymongo.MongoClient(
