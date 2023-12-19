@@ -1,6 +1,6 @@
 # Financify
 
-[![Tests](https://github.com/software-students-fall2023/5-final-project-generators/actions/workflows/test.yml/badge.svg)](https://github.com/software-students-fall2023/5-final-project-generators/actions/workflows/test.yml)
+[![Tests](https://github.com/software-students-fall2023/5-final-project-generators/actions/workflows/test.yml/badge.svg)](https://github.com/software-students-fall2023/5-final-project-generators/actions/workflows/test.yml) [![CI/CD](https://github.com/software-students-fall2023/5-final-project-generators/actions/workflows/CI_CD.yml/badge.svg)](https://github.com/software-students-fall2023/5-final-project-generators/actions/workflows/CI_CD.yml)
 
 # Team Members
 
