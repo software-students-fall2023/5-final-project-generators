@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+print('host is ', os.getenv("MONGO_DB_HOST"))
+
 MONGO_DB_HOST = os.getenv("MONGO_DB_HOST") or "localhost"
 MONGO_DB_PORT = int(os.getenv("MONGO_DB_PORT") or 27017)
 MONGO_DB_USERNAME = os.getenv("MONGO_DB_USERNAME")
