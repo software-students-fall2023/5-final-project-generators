@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/multiSelectTag.css') }}">
+    <script src="{{ url_for('static', filename='js/multiSelectTag.js') }}"></script>
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+{% include 'components/header.html' %}
+
+{% if exclude_navbar is not defined %}
+<nav class="bg-primary-400 p-4 mb-8 flex justify-evenly">
+    <a href="{{ url_for('index') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Home</a>
+    <a href="{{ url_for('add') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Add Expense</a>
+    <a href="{{ url_for('payments') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Record Payment</a>
+    <a href="{{ url_for('logout') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Logout</a>
+</nav>
+{% endif %}
+
+{% block content %}{% endblock %}
+</body>
+
+</html>

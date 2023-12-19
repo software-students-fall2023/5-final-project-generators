@@ -1,0 +1,40 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    {{ expense.name }} | Financify
+{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto mt-8">
+        <div class="bg-white p-8 rounded-md shadow-md">
+            <p class="text-sm text-gray-400 mr-3">{{ expense.created_at.strftime('%b %d, %Y') }}</p>
+
+            {% if expense.payment %}
+                {% set current = expense.splits.popitem() %}
+                {% if expense.paid_by|string == current_user.get_id() %}
+                    <p class="text-gray-600 mb-2">You paid {{ people[current[0]].first_name }} ${{ current[1]|round(2) }}</p>
+                    <div class="flex mt-4">
+                        <a href="{{ url_for('delete', expense_id=expense._id) }}" class="bg-red-200 text-gray-900 hover:bg-red-300 px-4 hover:no-underline py-2 rounded-md">Delete</a>
+                    </div>
+                {% else %}
+                    <p class="text-gray-600 mb-2">{{ people[expense.paid_by|string].first_name }} paid you ${{ current[1]|round(2) }}</p>
+                {% endif %}
+            {% else %}
+                <h1 class="text-3xl font-semibold text-secondary-800 mb-4">{{ expense.name }}</h1>
+                <p class="text-lg text-primary-400 font-bold mb-2">{% if current_user.get_id() == expense.paid_by|string %}You{% else %}{{ people[expense.paid_by|string].first_name }}{% endif%} paid ${{ expense.amount|round(2) }}</p>
+                <ul class="list-disc ml-6">
+                    {% for user_id, amount in expense.splits.items() %}
+                        <li class="text-gray-700">{% if current_user.get_id() == user_id %}You owe{% else %}{{ people[user_id].first_name }} owes{% endif %} ${{ amount|round(2) }}</li>
+                    {% endfor %}
+                </ul>
+
+                {% if current_user.get_id() == expense.paid_by|string %}
+                    <div class="flex mt-4">
+                        <a href="{{ url_for('edit', expense_id=expense._id) }}" class="bg-primary-200 text-gray-900 hover:bg-primary-300 hover:no-underline px-4 py-2 rounded-md mr-4">Edit</a>
+                        <a href="{{ url_for('delete', expense_id=expense._id) }}" class="bg-red-200 text-gray-900 hover:bg-red-300 px-4 hover:no-underline py-2 rounded-md">Delete</a>
+                    </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
