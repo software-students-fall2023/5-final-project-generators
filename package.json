@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "tailwindcss": "^3.3.6"
+  },
+  "scripts": {
+    "build": "npx tailwindcss -i ./web-app/src/static/src/input.css -o ./web-app/src/static/css/main.css"
   }
 }

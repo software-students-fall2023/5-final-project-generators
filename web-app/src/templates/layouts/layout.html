@@ -13,6 +13,16 @@
 
 <body>
 {% include 'components/header.html' %}
+
+{% if exclude_navbar is not defined %}
+<nav class="bg-primary-400 p-4 mb-8 flex justify-evenly">
+    <a href="{{ url_for('index') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Home</a>
+    <a href="{{ url_for('add') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Add Expense</a>
+    <a href="{{ url_for('payments') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Record Payment</a>
+    <a href="{{ url_for('logout') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Logout</a>
+</nav>
+{% endif %}
+
 {% block content %}{% endblock %}
 </body>
 

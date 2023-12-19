@@ -16,10 +16,9 @@ from flask_login import (
     current_user,
     login_required,
 )
-from werkzeug.security import generate_password_hash, check_password_hash
-
 from src.db import db, get_users, get_user_by_email, get_users_from_ids
 from src.defaults import SECRET_KEY, STATIC_DIR, TEMPLATES_DIR
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # initialize the flask app
 app = Flask(
@@ -60,9 +59,9 @@ def register():
         password = request.form.get('password')
 
         if any(not field for field in [first_name, last_name, email, password]):
-            return render_template('register.html', error='Please fill all the fields.')
+            return render_template('register.html', error='Please fill all the fields.', exclude_navbar=True)
         if db.users.find_one({'email': email}):
-            return render_template('register.html', error='Email already exists.')
+            return render_template('register.html', error='Email already exists.', exclude_navbar=True)
 
         hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
         db.users.insert_one({
@@ -78,7 +77,7 @@ def register():
         login_user(user)
         return redirect(url_for('index'))
 
-    return render_template('register.html')
+    return render_template('register.html', exclude_navbar=True)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -92,9 +91,9 @@ def login():
             user = User(user_data)
             login_user(user)
             return redirect(url_for('index'))
-        return render_template('login.html', error='Invalid email or password.')
+        return render_template('login.html', error='Invalid email or password.', exclude_navbar=True)
 
-    return render_template('login.html')
+    return render_template('login.html', exclude_navbar=True)
 
 
 @app.route('/')
@@ -112,19 +111,24 @@ def index():
             current_user=current_user
         )
 
-    return render_template('register.html')
+    return render_template('login.html', exclude_navbar=True)
 
 
 @app.route('/expense/<expense_id>')
 @login_required
 def expense_details(expense_id):
+    # try:
     expense = db.expenses.find_one({'_id': ObjectId(expense_id)})
     if expense:
-        return render_template('expense.html', expense=expense,
-                               own=(ObjectId(expense.get('paid_by')) == ObjectId(current_user.get_id())))
-    else:
-        # 404 page with 404 status
-        return render_template('404.html'), 404
+        people = get_people(list(expense.get('splits').keys()) + [str(expense.get('paid_by'))])
+        return render_template(
+            'expense.html',
+            expense=expense,
+            current_user=current_user,
+            people=people
+        )
+    # except Exception:
+    return render_template('404.html', exclude_navbar=True), 404
 
 
 def get_expense_info():
@@ -225,7 +229,7 @@ def edit(expense_id):
         item = get_expense_info()
         edited_expense = db.expenses.find_one_and_replace(
             {'_id': ObjectId(expense_id)},
-            item,
+            {**item, 'created_at': expense['created_at']}
         )
         return redirect(url_for('expense_details', expense_id=edited_expense['_id']))
 

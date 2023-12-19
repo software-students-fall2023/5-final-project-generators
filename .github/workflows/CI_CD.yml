@@ -1,4 +1,4 @@
-name: Build and Push to DockerHub
+name: CI/CD
 
 on:
   push:
@@ -30,6 +30,15 @@ jobs:
         run: |
           docker build -t $DOCKER_USERNAME/financify:latest ./web-app
           docker push $DOCKER_USERNAME/financify:latest
+
+      - name: Deploy to DigitalOcean
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: cd financify && docker-compose down && git pull && docker-compose up -d
 
       - name: Logout from DockerHub
         run: docker logout
