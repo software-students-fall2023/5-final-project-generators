@@ -5,13 +5,6 @@
 {% endblock %}
 
 {% block content %}
-
-<nav class="bg-primary-400 p-4 mb-8 flex justify-evenly">
-    <a href="{{ url_for('add') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Add Expense</a>
-    <a href="{{ url_for('payments') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Record Payment</a>
-    <a href="{{ url_for('logout') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Logout</a>
-</nav>
-
 <div class="container mx-auto mt-8">
     <h1 class="text-[2rem] text-center font-body font-semibold mb-4 text-secondary-800">Add Expense</h1>
 
@@ -37,7 +30,8 @@
                 {% endfor %}
             </select>
         </div>
-
+        <!-- email the friends financify link -->
+        <p>Don't see someone you want to split with? <a href="https://mail.google.com/mail/?view=cm&fs=1&su=Join%20Financify&body=Hey%20there!%20Join%20Financify%20to%20split%20expenses%20with%20me!%20https://financify.soyuj.com/" target="_blank" class="text-primary-400">Invite them to Financify!</a></p>
         <div class="mb-4">
             <input type="submit" value="Add Expense" class="mt-[0.5rem] px-4 py-2 text-white bg-primary-400 cursor-pointer rounded-md font-body">
         </div>

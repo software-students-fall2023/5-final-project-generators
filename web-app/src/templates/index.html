@@ -5,43 +5,38 @@
 {% endblock %}
 
 {% block content %}
-
-    <nav class="bg-primary-400 p-4 mb-8 flex justify-evenly">
-        <a href="{{ url_for('add') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Add Expense</a>
-        <a href="{{ url_for('payments') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Record Payment</a>
-        <a href="{{ url_for('logout') }}" class="text-white text-[1.5rem] font-head font-bold hover:text-primary-50 hover:no-underline">Logout</a>
-    </nav>
-
     <div class="mx-[5rem] my-[3rem]">
         {% if amounts %}
-            <h2 class="text-[2rem] font-semibold text-secondary-800">
+            <h2 class="text-[2rem] font-semibold text-secondary-800 mb-4">
                 Overall, you
-                {% if total < 0 %}
-                    <span class="text-red-400">owe ${{ -total }}</span>
+                {% if total|round(2) < 0 %}
+                    <span class="text-red-400">owe ${{ -total|round(2) }}</span>
+                {% elif total|round(2) == 0 %}
+                    <span class="text-gray-400">are settled up.</span>
                 {% else %}
-                    <span class="text-primary-400">are owed ${{ total }}</span>
+                    <span class="text-primary-400">are owed ${{ total|round(2) }}</span>
                 {% endif %}
             </h2>
             {% for expense in expenses %}
                 <div class="expense cursor-pointer border border-gray-300 rounded-md p-4 mb-4" onclick="location.href='{{ url_for('expense_details', expense_id=expense._id) }}'">
+                    <p class="text-sm text-gray-400 mr-3">{{ expense.created_at.strftime('%b %d, %Y') }}</p>
                     <h1 class="text-lg font-semibold mb-2">{{ expense.name }}</h1>
-
                     {% if expense.payment %}
                         {% if expense.paid_by|string == current_user.get_id() %}
                             {% set current = expense.splits.popitem() %}
-                            <p class="text-gray-600 mb-2">You paid {{ people[current[0]].first_name }} ${{ current[1] }}.</p>
+                            <p class="text-gray-600 mb-2">You paid {{ people[current[0]].first_name }} ${{ current[1]|round(2) }}.</p>
                         {% else %}
                             {% set current = expense.splits.popitem() %}
-                            <p class="text-gray-600 mb-2">{{ people[current[0]].first_name }} paid you ${{ current[1] }}.</p>
+                            <p class="text-gray-600 mb-2">{{ people[expense.paid_by|string].first_name }} paid you ${{ current[1]|round(2) }}.</p>
                         {% endif %}
                     {% else %}
                         {% if expense.paid_by|string == current_user.get_id() %}
                             <p class="text-gray-600 mb-2">You paid ${{ expense.amount }} for
                                 {% for user_id in expense.splits %}{% if (not loop.first) and (not loop.last) %}, {% endif %}{% if loop.last and not (loop.first and loop.last) %} and{% endif %} {% if user_id == current_user.get_id() %}yourself{% else %}{{ people[user_id].first_name }}{% endif %}{% endfor %}.
-                                You lent ${{ expense.amount - expense.splits.get(current_user.get_id(), 0) }} in total.
+                                You lent ${{ (expense.amount - expense.splits.get(current_user.get_id(), 0))|round(2) }} in total.
                             </p>
                         {% else %}
-                            <p class="text-gray-600 mb-2">{{ people[expense.paid_by|string].first_name }} paid ${{ expense.amount }} in total. You borrowed ${{ expense.splits[current_user.get_id()] }}</p>
+                            <p class="text-gray-600 mb-2">{{ people[expense.paid_by|string].first_name }} paid ${{ expense.amount|round(2) }} in total. You borrowed ${{ expense.splits[current_user.get_id()]|round(2) }}</p>
                         {% endif %}
                     {% endif %}
                 </div>

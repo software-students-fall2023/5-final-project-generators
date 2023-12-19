@@ -55,10 +55,12 @@ OR
 
 ### Accessing the deployed application
 
-1. Open the application in your browser: [http://165.227.185.104:8001/](http://165.227.185.104:8001/)
+1. Open the application in your browser: [http://financify.soyuj.com](http://financify.soyuj.com/)
 
 ## Notes and Links
 
 * Link to the Task Board:
     * [Project Board](https://github.com/orgs/software-students-fall2023/projects/104/views/1?layout=board)
 * The Web App is tested using Github Actions on every push to the main branch and approved pull requests.
+* Link to container images hosted on Docker Hub:
+    * [Financify](https://hub.docker.com/r/aavishkar6/financify)
