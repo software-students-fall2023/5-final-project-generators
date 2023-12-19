@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          script: cd financify && docker compose down && git pull && docker compose up -d
+          script: cd financify && docker compose down && git pull && docker compose up --build -d
 
       - name: Logout from DockerHub
         run: docker logout

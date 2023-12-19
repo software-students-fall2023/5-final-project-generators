@@ -12,7 +12,7 @@ services:
   web-app:
     build: web-app
     image: web-app
-    container_name: src
+    container_name: web-app
     ports:
       - "8001:8001"
     environment:
